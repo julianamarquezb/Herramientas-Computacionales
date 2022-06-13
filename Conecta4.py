@@ -30,21 +30,48 @@ negro = (0, 0, 0)
 blanco = (255, 255, 255)
 
 """ Inicio de las gráficas del juego """
-
-tamaño = (1000, 1000)
-pantalla = pygame.display.set_mode(tamaño)
 filas = 6
 columnas = 7
+tamaño = (columnas*100, filas*100 + 200)
+pantalla = pygame.display.set_mode(tamaño)
+fuente = pygame.font.Font(pygame.font.get_default_font(), 100)
+texto = fuente.render('Conecta 4', True, blanco)
 
-def tablero()
+def tablero():
 
+    tablero = np.zeros((columnas, filas))
+    return tablero
+
+def dibujar_tablero(tablero):
+
+    for i in range(columnas):
+        for j in range(filas):
+            if tablero[i][j] == 1:
+                pygame.draw.circle(pantalla, rojo, (int(100*(i+0.5)), tamaño[1]-int(100*(j+0.5))), 45)
+            elif tablero[i][j] == 2:
+                pygame.draw.circle(pantalla, amarillo, (int(100*(i+0.5)), tamaño[1]-int(100*(j+0.5))), 45)
+            else:
+                pygame.draw.circle(pantalla, negro, (int(100*(i+0.5)), tamaño[1]-int(100*(j+0.5))), 45)
+
+    pygame.display.update()
+
+def mostrar():
+
+    pantalla.fill(negro)
+    pantalla.blit(texto, dest = (120, 50))
+    pygame.draw.rect(pantalla, azul_oscuro, (0, 200, tamaño[0], tamaño[1]))
+    dibujar_tablero(tablero)
+    pygame.display.flip()
+
+tablero = tablero()
 game_over = False
+
 while not game_over:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
 
-    pantalla.fill(negro)
-    pygame.display.flip()
+    mostrar()
 
 pygame.quit()
