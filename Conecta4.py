@@ -6,10 +6,6 @@ import pygame
 import sys
 import random
 
-pygame.init()
-fps = pygame.time.Clock()
-num_fps = 30
-
 """ Lista de los colores que se usarán en el juego """
 
 rojo = (255, 0, 0)
@@ -36,12 +32,16 @@ tamaño = (columnas*100, filas*100 + 200)
 pantalla = pygame.display.set_mode(tamaño)
 fuente = pygame.font.Font(pygame.font.get_default_font(), 100)
 texto = fuente.render('Conecta 4', True, blanco)
+""" Matriz que representa el tablero de juego """
 
 def tablero():
 
     tablero = np.zeros((columnas, filas))
     return tablero
-
+    
+""" Función que dibuja las fichas de acuerdo a los valores
+en la matriz del tablero """
+ 
 def dibujar_tablero(tablero):
 
     for i in range(columnas):
@@ -55,6 +55,37 @@ def dibujar_tablero(tablero):
 
     pygame.display.update()
 
+""" Función que identifica 4 fichas en línea """
+
+def ganar(tablero, jugador):
+
+    for i in range(columnas-3): """ Línea horizontal """
+        for j in range(filas):
+            if tablero[i][j] == jugador and tablero[i+1][j] == jugador and tablero[i+2][j] == jugador and tablero[i+3][j] == jugador:
+                return True
+
+    for i in range(columnas):   """ Línea vertical """
+        for j in range(filas-3):
+            if tablero[i][j] == jugador and tablero[i][j+1] == jugador and tablero[i][j+2] == jugador and tablero[i][j+3] == jugador:
+                return True
+
+    for i in range(columnas-3): """ Línea en diagonal / """
+        for j in range(filas-3):
+            if tablero[i][j] == jugador and tablero[i+1][j+1] == jugador and tablero[i+2][j+2] == jugador and tablero[i+3][j+3] == jugador:
+                return True
+
+    for i in range(3,columnas): """ Línea en diagonal \ """
+        for j in range(filas-3):
+            if tablero[i][j] == jugador and tablero[i-1][j+1] == jugador and tablero[i-2][j+2] == jugador and tablero[i-3][j+3] == jugador:
+                return True
+
+""" Función que ubica la ficha en la posición indicada """
+
+def poner_ficha(tablero, jugador, fila, columna):
+    tablero[columna][fila] = jugador
+
+""" Función que actualiza las gráficas """
+
 def mostrar():
 
     pantalla.fill(negro)
@@ -62,9 +93,12 @@ def mostrar():
     pygame.draw.rect(pantalla, azul_oscuro, (0, 200, tamaño[0], tamaño[1]))
     dibujar_tablero(tablero)
     pygame.display.flip()
-
+    
+pygame.init()
 tablero = tablero()
 game_over = False
+
+""" Loop que permite el funcionamiento del juego """
 
 while not game_over:
 
