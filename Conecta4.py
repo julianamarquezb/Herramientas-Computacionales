@@ -26,24 +26,25 @@ negro = (0, 0, 0)
 blanco = (255, 255, 255)
 
 """ Inicio de las gráficas del juego """
+
+pygame.init()
 filas = 6
 columnas = 7
 tamaño = (columnas*100, filas*100 + 200)
 pantalla = pygame.display.set_mode(tamaño)
 fuente = pygame.font.Font(pygame.font.get_default_font(), 100)
-texto = fuente.render('Conecta 4', True, blanco)
+titulo = fuente.render('Conecta 4', True, blanco)
+
 """ Matriz que representa el tablero de juego """
 
 def tablero():
-
     tablero = np.zeros((columnas, filas))
     return tablero
-    
+
 """ Función que dibuja las fichas de acuerdo a los valores
 en la matriz del tablero """
- 
-def dibujar_tablero(tablero):
 
+def dibujar_tablero(tablero):
     for i in range(columnas):
         for j in range(filas):
             if tablero[i][j] == 1:
@@ -59,53 +60,105 @@ def dibujar_tablero(tablero):
 
 def ganar(tablero, jugador):
 
-    for i in range(columnas-3): """ Línea horizontal """
+    for i in range(columnas-3): # Línea horizontal
         for j in range(filas):
             if tablero[i][j] == jugador and tablero[i+1][j] == jugador and tablero[i+2][j] == jugador and tablero[i+3][j] == jugador:
                 return True
 
-    for i in range(columnas):   """ Línea vertical """
+    for i in range(columnas):   # Línea vertical
         for j in range(filas-3):
             if tablero[i][j] == jugador and tablero[i][j+1] == jugador and tablero[i][j+2] == jugador and tablero[i][j+3] == jugador:
                 return True
 
-    for i in range(columnas-3): """ Línea en diagonal / """
+    for i in range(columnas-3): # Línea en diagonal /
         for j in range(filas-3):
             if tablero[i][j] == jugador and tablero[i+1][j+1] == jugador and tablero[i+2][j+2] == jugador and tablero[i+3][j+3] == jugador:
                 return True
 
-    for i in range(3,columnas): """ Línea en diagonal \ """
+    for i in range(3,columnas): # Línea en diagonal \
         for j in range(filas-3):
             if tablero[i][j] == jugador and tablero[i-1][j+1] == jugador and tablero[i-2][j+2] == jugador and tablero[i-3][j+3] == jugador:
                 return True
+
+
+""" Función que decide si la posición de la ficha es válida """
+
+def valido(tablero, columna):
+    if tablero[columna][-1] == 0:
+        return True
+    else:
+        return False
+
+""" Función que retorna la fila en la que debe caer la ficha """
+
+def cual_fila(tablero, columna):
+    for i in range(filas):
+        if tablero[columna][i] == 0:
+            return i
 
 """ Función que ubica la ficha en la posición indicada """
 
 def poner_ficha(tablero, jugador, fila, columna):
     tablero[columna][fila] = jugador
+    return tablero
 
 """ Función que actualiza las gráficas """
 
 def mostrar():
-
     pantalla.fill(negro)
-    pantalla.blit(texto, dest = (120, 50))
+    pantalla.blit(titulo, dest = (120, 50))
     pygame.draw.rect(pantalla, azul_oscuro, (0, 200, tamaño[0], tamaño[1]))
     dibujar_tablero(tablero)
     pygame.display.flip()
-    
-pygame.init()
-tablero = tablero()
-game_over = False
 
 """ Loop que permite el funcionamiento del juego """
 
-while not game_over:
+tablero = tablero()
+game_over = False
+turno = 0
 
+while not game_over:
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             game_over = True
 
-    mostrar()
+        if turno == 0:
+            pygame.draw.rect(pantalla, negro, (50, 500, 600, 20))
+            texto = pygame.font.Font(pygame.font.get_default_font(), 15)
+            instrucciones = texto.render('Para jugar, desliza la ficha hasta la columna y déjala caer presionando el mouse', True, blanco)
+            pantalla.blit(instrucciones, dest=(50,500))
 
+        if event.type == pygame.MOUSEMOTION:
+            posicion = pygame.mouse.get_pos()[0]
+            if turno % 2 == 0:
+                pygame.draw.circle(pantalla, rojo, (posicion, 150), 45)
+            else:
+                pygame.draw.circle(pantalla, amarillo, (posicion, 150), 45)
+        pygame.display.update()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            posicion = pygame.mouse.get_pos()[0]
+            columna = int(posicion//100)
+
+            if turno % 2 == 0:
+                if valido(tablero, columna) == True:
+                    fila = cual_fila(tablero, columna)
+                    poner_ficha(tablero, 1, fila, columna)
+                if ganar(tablero, 1) == True:
+                    ganador = texto.render('El jugador 1 ha ganado', True, blanco)
+                    game_over = True
+
+            elif turno % 2 == 1:
+                if valido(tablero, columna) == True:
+                    fila = cual_fila(tablero, columna)
+                    poner_ficha(tablero, 2, fila, columna)
+                if ganar(tablero, 2) == True:
+                    ganador = texto.render('El jugador 2 ha ganado', True, blanco)
+                    game_over = True
+            turno += 1
+
+        mostrar()
+
+pantalla.blit(ganador, dest = (50,500))
 pygame.quit()
