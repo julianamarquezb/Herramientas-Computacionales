@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 datos = np.genfromtxt("difusion_gas.csv", delimiter = ",")
-i = -1
 
+frames = int(len(datos)/100)
+u = [None] * frames
+for i in range(frames):
+  u[i] = datos[100*i:100*(i+1),:]
+
+i = -1
 def cuenta(i):
     i += 1
     return int(i)
 
 def frame(f):
-    u = datos[100*f:100*(f+1),:]
-    u = u.reshape(100,101)
-    return u
+    return u[f]
 
 def animar():
     fig = plt.figure()
