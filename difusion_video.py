@@ -1,33 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import subprocess
+import matplotlib.animation as animation
 
 datos = np.genfromtxt("difusion_gas.csv", delimiter = ",")
-f = plt.figure(frameon=False, figsize=(4, 5), dpi=100)
-largo, alto = f.canvas.get_width_height()
-ax = f.add_axes([0, 0, 1, 1])
+i = -1
 
-def actualizar(frame):
-    u = datos[100*frame:100*(frame+1),:]
+def cuenta(i):
+    i += 1
+    return int(i)
+
+def frame(f):
+    u = datos[100*f:100*(f+1),:]
     u = u.reshape(100,101)
-    plt.figure()
-    plt.title("Coeficiente de difusión = 0.2")
-    plt.xlabel("x (cm)")
-    plt.ylabel("y (cm)")
-    plt.imshow(u, cmap='Blues', interpolation='bilinear', vmin=0)
-    plt.show()
-    plt.close()
+    return u
 
-video = 'difusion.mp4'
-info = ('ffmpeg','-y', '-r', '30', '-s', '%dx%d' % (largo, alto), '-pix_fmt', 'argb', '-f', 'rawvideo',  '-i', '-', '-vcodec', 'mpeg4', video)
-p = subprocess.Popen(info, stdin=subprocess.PIPE)
+def animar():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_aspect('equal')
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
 
-for frame in range(len(datos)):
-    actualizar(frame)
-    plt.draw()
+    im = ax.imshow(frame(f), cmap='Blues', interpolation='bilinear', vmin=0)
+    im.set_clim([0, 1])
+    fig.set_size_inches([5, 5])
 
-    cout = f.canvas.tostring_argb()
+    plt.tight_layout()
 
-    p.stdin.write(cout)
+    def actualizar(n):
+        f = cuenta(i)
+        tmp = frame(f)
+        im.set_data(tmp)
+        return im
 
-p.communicate()
+    animacion = animation.FuncAnimation(fig, actualizar, 150, interval=30)
+    writer = animation.writers['ffmpeg'](fps=30)
+
+    animacion.save('difusion_gas.mp4', writer=writer, dpi=72)
+    return animacion
+
+animar()
