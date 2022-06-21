@@ -32,7 +32,7 @@ int main(){
     t[i] = t[i-1] + dt;
   }
 
-  double u_pasado[n][n];              /* el array de condiciones iniciales */
+  double u_pasado[n][n];                /* el array de condiciones iniciales */
   for (int i = 0; i < n; i++){
     for (int j = 0; j < n; j++){
       u_pasado[i][j] = 0;
@@ -49,7 +49,7 @@ int main(){
   double u_presente[n][n] = {0};
   ofstream outfile;
   outfile.open("difusion_gas.csv");
-  for (int k = 0; k < instantes; k++){
+  for (int k = 0; k < instantes; k++){   /* se actualiza el estado del sistema */
 
     for (int i = 1; i < n-1; i++){
       for (int j = 1; j < n-1; j++){
@@ -68,7 +68,7 @@ int main(){
       for (int j = 0; j < n; j++){
         outfile << u_presente[i][j] << ",";
       }
-      outfile << endl;              /* se crea un archivo con los datos */
+      outfile << endl;                   /* se crea un archivo con los datos hallados */
     }
 
   }
